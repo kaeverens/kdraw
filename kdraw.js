@@ -98,30 +98,37 @@
 		});
 	};
 	function _optimise(ps) {
-		console.log(JSON.stringify(ps));
-		var nps=[ps[0]];
-		for (var i=1;i<ps.length-1;++i) {
+		var ps2=[ps[0]];
+		for (var i=1;i<ps.length;++i) { // remove duplicate points from lines
+			if (ps[i-1][0]!=ps[i][0] || ps[i-1][1]!=ps[i][1]) {
+				ps2.push(ps[i]);
+			}
+		}
+		var ps3=[ps[0]];
+		for (var i=1;i<ps2.length-1;++i) {
 			var same=false;
-			if (ps[i-1][1]==ps[i][1]) {
-				if (ps[i][1]==ps[i+1][1]) {
+			if (ps2[i-1][1]==ps2[i][1]) {
+				if (ps2[i][1]==ps2[i+1][1]) {
 					same=true;
 				}
 			}
 			else {
-				if (ps[i][1]!=ps[i+1][1]) {
-					var oAng=(ps[i-1][0]-ps[i][0])/(ps[i-1][1]-ps[i][1]);
-					var nAng=(ps[i][0]-ps[i+1][0])/(ps[i][1]-ps[i+1][1]);
+				if (ps2[i][1]!=ps2[i+1][1]) {
+					var oAng=(ps2[i-1][0]-ps2[i][0])/(ps2[i-1][1]-ps2[i][1]);
+					var nAng=(ps2[i][0]-ps2[i+1][0])/(ps2[i][1]-ps2[i+1][1]);
 					if (oAng==nAng) {
 						same=true;
 					}
 				}
 			}
 			if (!same) {
-				nps.push(ps[i]);
+				ps3.push(ps2[i]);
 			}
 		}
-		nps.push(ps[ps.length-1]);
-		console.log(JSON.stringify(nps));
-		return nps;
+		ps3.push(ps2[ps2.length-1]);
+		console.log(JSON.stringify(ps));
+		console.log(JSON.stringify(ps2));
+		console.log(JSON.stringify(ps3));
+		return ps3;
 	}
 })(jQuery);
