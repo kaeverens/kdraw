@@ -80,7 +80,6 @@
 				ch=rotate?w:h;
 				for (var i=0;i<layers.length;++i) {
 					var layer=layers[i];
-					console.log(layer);
 					switch (layer.type) {
 						default: // { line
 							var p=layer.p;
@@ -113,7 +112,6 @@
 					layers.push({
 						'p':_optimise(points)
 					});
-					console.log(JSON.stringify(layers));
 				}
 				$canvas.mousemove(move);
 				$canvas.mouseup(up);
@@ -151,9 +149,6 @@
 			}
 		}
 		ps3.push(ps2[ps2.length-1]);
-		console.log(JSON.stringify(ps));
-		console.log(JSON.stringify(ps2));
-		console.log(JSON.stringify(ps3));
 		return ps3;
 	}
 })(jQuery);
