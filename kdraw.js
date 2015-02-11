@@ -3,7 +3,11 @@
 		var options={
 			'pen':{
 				'colour':'#000',
-				'width':1
+				'width':1,
+				'rotate':function() {
+					var w=$(window).width(), h=$(window).height();
+					return h>w;
+				}
 			}
 		};
 		var $this=$(this);
@@ -12,8 +16,8 @@
 				$canvas.remove();
 				$buttons.remove();
 			}
-			var w=$(window).width(), h=$(window).height();
-			var rotate=h>w;
+			var w=$(window).width(), h=$(window).height(), rotate=0;
+			var cw=w, ch=h;
 			var $canvas=$('<canvas width="'+w+'" height="'+h+'" style="position:fixed;left:0;top:0;right:0;bottom:0;background:#fff;"/>')
 				.appendTo('body');
 			// { initialise ctx settings
@@ -50,9 +54,30 @@
 				.appendTo($buttons);
 			// }
 			var layers=JSON.parse($this.find('input').val()||'[]');
+			function rotatePoints(x, y) {
+				return rotate
+					?[w-y, x]
+					:[x, y];
+			}
+			function unRotatePoints(x, y) {
+				return rotate
+					?[y, ch-x]
+					:[x, y];
+			}
+			function ctxMoveTo(x, y) {
+				var ps=rotatePoints(x, y);
+				ctx.moveTo(ps[0], ps[1]);
+			}
+			function ctxLineTo(x, y) {
+				var ps=rotatePoints(x, y);
+				ctx.lineTo(ps[0], ps[1]);
+			}
 			function draw() {
 				ctx.clearRect(0, 0, w, h);
 				options=$.extend(options, opts);
+				rotate=options.rotate();
+				cw=rotate?h:w;
+				ch=rotate?w:h;
 				for (var i=0;i<layers.length;++i) {
 					var layer=layers[i];
 					console.log(layer);
@@ -60,9 +85,9 @@
 						default: // { line
 							var p=layer.p;
 							ctx.beginPath();
-							ctx.moveTo(p[0][0], p[0][1]);
+							ctxMoveTo(p[0][0], p[0][1]);
 							for (var j=1;j<p.length;++j) {
-								ctx.lineTo(p[j][0], p[j][1]);
+								ctxLineTo(p[j][0], p[j][1]);
 							}
 							ctx.stroke();
 						break; // }
@@ -71,14 +96,14 @@
 			}
 			draw();
 			function startDrawing(e) {
-				var lastP=[e.offsetX, e.offsetY];
+				var lastP=unRotatePoints(e.offsetX, e.offsetY);
 				var points=[lastP];
 				function move(e) {
-					var p=[e.offsetX, e.offsetY];
+					var p=unRotatePoints(e.offsetX, e.offsetY);
 					points.push(p);
 					ctx.beginPath();
-					ctx.moveTo(lastP[0], lastP[1]);
-					ctx.lineTo(p[0], p[1]);
+					ctxMoveTo(lastP[0], lastP[1]);
+					ctxLineTo(p[0], p[1]);
 					ctx.stroke();
 					lastP=p;
 				}
